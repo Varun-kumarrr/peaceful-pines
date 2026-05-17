@@ -1,16 +1,33 @@
+import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { resorts } from "../data/resorts";
 
 function Hero() {
-  const heroImage = resorts[0].images[0];
+  const heroImages = resorts.flatMap((resort) => resort.images);
+  const [currentImage, setCurrentImage] = useState(0);
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setCurrentImage((prev) =>
+        prev === heroImages.length - 1 ? 0 : prev + 1
+      );
+    }, 3500);
+
+    return () => clearInterval(interval);
+  }, [heroImages.length]);
 
   return (
     <section className="relative min-h-[85vh] flex items-center overflow-hidden">
-      <img
-        src={heroImage}
-        alt="Peaceful Pines Resort"
-        className="absolute inset-0 w-full h-full object-cover"
-      />
+      {heroImages.map((image, index) => (
+        <img
+          key={index}
+          src={image}
+          alt="Peaceful Pines Resort"
+          className={`absolute inset-0 w-full h-full object-cover transition-opacity duration-1000 ${
+            index === currentImage ? "opacity-100" : "opacity-0"
+          }`}
+        />
+      ))}
 
       <div className="absolute inset-0 bg-black/45"></div>
 
@@ -42,6 +59,21 @@ function Hero() {
           >
             Book Your Stay
           </Link>
+        </div>
+
+        <div className="mt-10 flex gap-2">
+          {heroImages.map((_, index) => (
+            <button
+              key={index}
+              onClick={() => setCurrentImage(index)}
+              className={`h-2 rounded-full transition-all ${
+                index === currentImage
+                  ? "w-8 bg-white"
+                  : "w-2 bg-white/50"
+              }`}
+              aria-label={`Go to slide ${index + 1}`}
+            ></button>
+          ))}
         </div>
       </div>
     </section>
